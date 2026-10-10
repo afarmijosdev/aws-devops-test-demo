@@ -16,6 +16,23 @@ module "eks" {
 
   enable_irsa = var.enable_irsa
 
+  # Deployers (e.g. GitHub Actions) get the Kubernetes "edit" role, only in
+  # their namespaces: create/delete Jobs and Deployments, read pods and logs.
+  access_entries = {
+    for arn in var.deployer_arns : arn => {
+      principal_arn = arn
+      policy_associations = {
+        edit = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+          access_scope = {
+            type       = "namespace"
+            namespaces = var.deployer_namespaces
+          }
+        }
+      }
+    }
+  }
+
   addons = {
     coredns    = {}
     kube-proxy = {}
