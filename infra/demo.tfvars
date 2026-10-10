@@ -77,5 +77,5 @@ secrets = {
 
 # ECR repositories managed by Terraform.
 ecr_repositories = [
-  "db-migrations","fe-inventory","be-inventory",
+  "db-migrations", "fe-inventory", "be-inventory",
 ]
