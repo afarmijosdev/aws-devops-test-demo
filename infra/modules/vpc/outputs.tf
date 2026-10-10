@@ -27,10 +27,6 @@ output "database_subnet_ids" {
   value = module.vpc.database_subnets
 }
 
-output "database_subnet_group_name" {
-  value = module.vpc.database_subnet_group_name
-}
-
 output "nat_public_ips" {
   value = module.vpc.nat_public_ips
 }

@@ -51,3 +51,37 @@ module "services" {
 
   depends_on = [module.eks]
 }
+
+module "secrets" {
+  source = "./modules/secrets"
+
+  secrets   = var.secrets
+  namespace = var.namespace
+  tags      = local.tags
+
+  # The namespace is created by the service Helm releases.
+  depends_on = [module.services]
+}
+
+module "rds" {
+  source = "./modules/rds-sqlserver"
+
+  identifier        = var.rds.identifier
+  instance_class    = var.rds.instance_class
+  engine_version    = var.rds.engine_version
+  allocated_storage = var.rds.allocated_storage
+
+  vpc_id = module.vpc.vpc_id
+  # Every vpc.subnets entry whose type or name matches rds.subnets.
+  subnet_ids = [
+    for s in var.vpc.subnets : module.vpc.subnet_ids_by_cidr[s.cidr]
+    if s.type == var.rds.subnets || s.name == var.rds.subnets
+  ]
+  # Pods on the EKS nodes can reach SQL Server.
+  allowed_security_group_ids = [module.eks.node_security_group_id]
+
+  master_username = module.secrets.credentials[var.rds.master_secret].username
+  master_password = module.secrets.credentials[var.rds.master_secret].password
+
+  tags = local.tags
+}
