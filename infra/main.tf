@@ -85,3 +85,10 @@ module "rds" {
 
   tags = local.tags
 }
+
+module "ecr" {
+  source = "./modules/ecr"
+
+  repositories = var.ecr_repositories
+  tags         = local.tags
+}

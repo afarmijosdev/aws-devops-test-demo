@@ -74,3 +74,8 @@ secrets = {
   db_sa  = {}
   db_api = {}
 }
+
+# ECR repositories managed by Terraform.
+ecr_repositories = [
+  "db-migrations","fe-inventory","be-inventory",
+]
