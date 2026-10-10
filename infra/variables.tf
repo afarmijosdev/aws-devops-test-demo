@@ -57,3 +57,36 @@ variable "services" {
     env      = optional(map(string), {}) # Container environment variables
   }))
 }
+
+variable "rds" {
+  description = "RDS SQL Server Express settings"
+  type = object({
+    identifier        = string               # RDS instance identifier
+    instance_class    = string               # db.t3.micro - db.t3.xlarge
+    engine_version    = optional(string)     # null = RDS default
+    allocated_storage = optional(number, 20) # GiB
+    subnets           = string               # Type or name of the vpc.subnets to use
+    master_secret     = string               # Key in var.secrets holding the master login
+  })
+
+  validation {
+    condition = length([
+      for s in var.vpc.subnets : s if s.type == var.rds.subnets || s.name == var.rds.subnets
+    ]) >= 2
+    error_message = "rds.subnets must match the type or name of at least two vpc.subnets (RDS needs two AZs)."
+  }
+
+  validation {
+    condition     = contains(keys(var.secrets), var.rds.master_secret)
+    error_message = "rds.master_secret must be one of the keys in secrets."
+  }
+}
+
+variable "secrets" {
+  description = "Database credentials stored in AWS Secrets Manager and copied into EKS, keyed by secret name"
+  type = map(object({
+    username        = optional(string) # Defaults to the secret name
+    password_length = optional(number, 32)
+  }))
+  default = {}
+}

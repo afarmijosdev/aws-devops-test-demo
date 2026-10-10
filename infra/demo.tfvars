@@ -58,3 +58,19 @@ services = {
     }
   }
 }
+
+# RDS: SQL Server Express, single instance in the db_private subnets.
+# Express doesn't run on Graviton, so db.t4g.* isn't available; db.t3.micro is the equivalent.
+rds = {
+  identifier     = "demo-sqlserver"
+  instance_class = "db.t3.micro"
+  subnets        = "db_private"
+  master_secret  = "db_sa" # master login = the db_sa secret
+}
+
+# Secrets: created in AWS Secrets Manager and copied into EKS (namespace above).
+# Each holds {"username", "password"}; the password is generated.
+secrets = {
+  db_sa  = {}
+  db_api = {}
+}

@@ -14,10 +14,6 @@ output "database_subnet_ids" {
   value = module.vpc.database_subnet_ids
 }
 
-output "database_subnet_group_name" {
-  value = module.vpc.database_subnet_group_name
-}
-
 output "nat_public_ips" {
   value = module.vpc.nat_public_ips
 }
@@ -37,4 +33,20 @@ output "kubeconfig_command" {
 output "fe_inventory_url_command" {
   description = "Prints the public URL of fe-inventory once its load balancer is ready"
   value       = "kubectl get svc fe-inventory -n ${var.namespace} -o jsonpath='http://{.status.loadBalancer.ingress[0].hostname}'"
+}
+
+output "aws_secret_arns" {
+  value = module.secrets.aws_secret_arns
+}
+
+output "kubernetes_secret_names" {
+  value = module.secrets.kubernetes_secret_names
+}
+
+output "rds_endpoint" {
+  value = module.rds.endpoint
+}
+
+output "rds_port" {
+  value = module.rds.port
 }

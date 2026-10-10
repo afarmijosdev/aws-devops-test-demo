@@ -36,6 +36,7 @@ module "vpc" {
   database_subnets                   = local.subnets_by_type.database[*].cidr
   database_subnet_names              = local.subnet_names.database
   create_database_subnet_route_table = length(local.subnets_by_type.database) > 0
+  create_database_subnet_group       = false # each database module creates its own
 
   # Outbound internet for private subnets (needed by EKS nodes).
   enable_nat_gateway = true

@@ -1,9 +1,7 @@
 name: Build and push images to ECR
 
 on:
-  push:
-    tags:
-      - "build-image*"
+  workflow_dispatch:
 
 env:
   AWS_REGION: us-east-2
@@ -17,7 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [be-inventory, fe-inventory]
+        include:
+          - { image: be-inventory, dir: be-inventory }
+          - { image: fe-inventory, dir: fe-inventory }
 
     steps:
       - name: Checkout
@@ -36,17 +36,17 @@ jobs:
 
       - name: Ensure ECR repository exists
         run: |
-          aws ecr describe-repositories --repository-names "${{ matrix.service }}" >/dev/null 2>&1 \
-            || aws ecr create-repository --repository-name "${{ matrix.service }}" \
+          aws ecr describe-repositories --repository-names "${{ matrix.image }}" >/dev/null 2>&1 \
+            || aws ecr create-repository --repository-name "${{ matrix.image }}" \
                  --image-scanning-configuration scanOnPush=true
 
       - name: Build and push
         working-directory: hueca-bookstore
         env:
-          IMAGE: ${{ steps.ecr.outputs.registry }}/${{ matrix.service }}
+          IMAGE: ${{ steps.ecr.outputs.registry }}/${{ matrix.image }}
         run: |
           docker build --platform linux/amd64 \
-            -f ${{ matrix.service }}/Dockerfile \
+            -f ${{ matrix.dir }}/Dockerfile \
             -t "$IMAGE:${GITHUB_SHA::7}" \
             -t "$IMAGE:latest" .
           docker push --all-tags "$IMAGE"
