@@ -7,7 +7,9 @@
 #   2. schema/ against hueca_bookstore, as the db_api login (tables, etc.)
 #
 # Required env vars: DB_HOST, DB_SA_USER, DB_SA_PASSWORD, DB_API_USER, DB_API_PASSWORD
-# Optional env vars: DB_PORT (default 1433), DB_JDBC_OPTIONS
+# Optional env vars: DB_PORT (default 1433), DB_JDBC_OPTIONS,
+#   FLYWAY_REPAIR=true  run "flyway repair" before each migrate (clears failed
+#                       entries from the history so a fixed script can run again)
 set -eu
 
 : "${DB_HOST:?DB_HOST is required}"
@@ -17,6 +19,16 @@ set -eu
 : "${DB_API_PASSWORD:?DB_API_PASSWORD is required}"
 DB_PORT="${DB_PORT:-1433}"
 DB_JDBC_OPTIONS="${DB_JDBC_OPTIONS:-encrypt=true;trustServerCertificate=true}"
+FLYWAY_REPAIR="${FLYWAY_REPAIR:-false}"
+
+# flyway [repair +] migrate, with the FLYWAY_* settings from the caller.
+run_flyway() {
+  if [ "$FLYWAY_REPAIR" = "true" ]; then
+    echo "--- flyway repair"
+    flyway repair
+  fi
+  flyway migrate
+}
 
 jdbc_url() {
   echo "jdbc:sqlserver://${DB_HOST}:${DB_PORT};databaseName=$1;${DB_JDBC_OPTIONS}"
@@ -34,11 +46,11 @@ FLYWAY_USER="$DB_SA_USER" \
 FLYWAY_PASSWORD="$DB_SA_PASSWORD" \
 FLYWAY_LOCATIONS="filesystem:/flyway/sql/bootstrap" \
 FLYWAY_PLACEHOLDERS_DB_API_PASSWORD="$(printf '%s' "$DB_API_PASSWORD" | sed "s/'/''/g")" \
-  flyway migrate
+  run_flyway
 
 echo "==> Schema: hueca_bookstore as ${DB_API_USER}"
 FLYWAY_URL="$(jdbc_url hueca_bookstore)" \
 FLYWAY_USER="$DB_API_USER" \
 FLYWAY_PASSWORD="$DB_API_PASSWORD" \
 FLYWAY_LOCATIONS="filesystem:/flyway/sql/schema" \
-  flyway migrate
+  run_flyway

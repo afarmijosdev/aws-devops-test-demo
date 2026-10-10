@@ -3,6 +3,7 @@
 #   ${NAMESPACE}  namespace holding the db-sa / db-api secrets
 #   ${IMAGE}      db-migrations image, with tag
 #   ${DB_HOST}    RDS SQL Server endpoint
+#   ${FLYWAY_REPAIR}  "true" to run flyway repair before migrating
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -29,6 +30,8 @@ spec:
               value: "${DB_HOST}"
             - name: DB_PORT
               value: "1433"
+            - name: FLYWAY_REPAIR
+              value: "${FLYWAY_REPAIR}"
             - name: DB_SA_USER
               valueFrom:
                 secretKeyRef: { name: db-sa, key: username }
