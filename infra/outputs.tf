@@ -25,3 +25,8 @@ output "eks_cluster_endpoint" {
 output "kubeconfig_command" {
   value = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
 }
+
+output "fe_inventory_url_command" {
+  description = "Prints the public URL of fe-inventory once its load balancer is ready"
+  value       = "kubectl get svc fe-inventory -n ${var.namespace} -o jsonpath='http://{.status.loadBalancer.ingress[0].hostname}'"
+}

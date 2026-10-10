@@ -15,7 +15,7 @@ RUN pip install -r requirements.txt
 COPY be-inventory/ .
 
 RUN useradd --create-home --uid 10001 appuser
-USER appuser
+USER 10001:10001
 
 EXPOSE 8000
 

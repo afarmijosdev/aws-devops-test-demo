@@ -29,3 +29,20 @@ variable "eks" {
     enable_irsa         = bool         # Create OIDC provider for IAM Roles for Service Accounts
   })
 }
+
+variable "namespace" {
+  description = "Kubernetes namespace for the application services"
+  type        = string
+}
+
+variable "services" {
+  description = "Application services to deploy on EKS, keyed by name"
+  type = map(object({
+    image    = string                     # ECR repository, without the tag
+    tag      = optional(string, "latest") # Image tag
+    port     = optional(number, 8000)     # Port the container listens on
+    replicas = optional(number, 1)
+    public   = optional(bool, false)     # true = internet-facing load balancer
+    env      = optional(map(string), {}) # Container environment variables
+  }))
+}

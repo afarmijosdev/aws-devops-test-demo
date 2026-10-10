@@ -18,3 +18,27 @@ eks = {
   node_instance_types = ["m7i-flex.large"]
   enable_irsa         = false
 }
+
+# Application services (Helm releases on demo-eks)
+namespace = "bookstore"
+
+services = {
+  # Backend: private, reachable only inside the cluster.
+  be-inventory = {
+    image  = "753654068792.dkr.ecr.us-east-2.amazonaws.com/be-inventory"
+    tag    = "latest"
+    port   = 8000
+    public = false
+  }
+
+  # Frontend: public through an AWS load balancer.
+  fe-inventory = {
+    image  = "753654068792.dkr.ecr.us-east-2.amazonaws.com/fe-inventory"
+    tag    = "latest"
+    port   = 8000
+    public = true
+    env = {
+      BACKEND_API_URL = "http://be-inventory:8000"
+    }
+  }
+}
