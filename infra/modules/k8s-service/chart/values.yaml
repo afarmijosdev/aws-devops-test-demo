@@ -12,6 +12,10 @@ healthPath: /openapi.json
 
 env: {}
 
+# Environment variables read from Kubernetes secrets:
+#   NAME: { secret: <secret name>, key: <key in the secret> }
+secretEnv: {}
+
 service:
   # ClusterIP keeps the service private; LoadBalancer exposes it publicly.
   type: ClusterIP

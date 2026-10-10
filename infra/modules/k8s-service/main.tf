@@ -8,6 +8,7 @@ resource "helm_release" "this" {
     replicaCount  = var.replicas
     containerPort = var.port
     env           = var.env
+    secretEnv     = var.secret_env
 
     image = {
       repository = var.image

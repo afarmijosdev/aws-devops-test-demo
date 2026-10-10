@@ -35,7 +35,7 @@ eks = {
   # IAM principals that can deploy into the app namespace (e.g. the GitHub Actions user).
   # Find the ARN with the same keys: aws sts get-caller-identity --query Arn
   deployer_arns = [
-     "arn:aws:iam::753654068792:user/github_api",
+    "arn:aws:iam::753654068792:user/github_api",
   ]
 }
 
@@ -50,6 +50,14 @@ services = {
     port     = 8000
     replicas = 2
     public   = false
+    env = {
+      DB_HOST = "demo-sqlserver.cvokac2am45d.us-east-2.rds.amazonaws.com"
+      DB_PORT = "1433"
+    }
+    secret_env = {
+      DB_USER     = { secret = "db-api", key = "username" }
+      DB_PASSWORD = { secret = "db-api", key = "password" }
+    }
   }
 
   # Frontend: public through an AWS load balancer.

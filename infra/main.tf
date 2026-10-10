@@ -39,31 +39,39 @@ module "eks" {
   tags = local.tags
 }
 
+# Namespace for the app services and their secrets. Created here (not by Helm)
+# so the secrets exist before the services that read them.
+resource "kubernetes_namespace_v1" "app" {
+  metadata {
+    name = var.namespace
+  }
+
+  depends_on = [module.eks]
+}
+
 module "services" {
   source   = "./modules/k8s-service"
   for_each = var.services
 
-  name      = each.key
-  namespace = var.namespace
-  image     = each.value.image
-  tag       = each.value.tag
-  port      = each.value.port
-  replicas  = each.value.replicas
-  public    = each.value.public
-  env       = each.value.env
+  name       = each.key
+  namespace  = kubernetes_namespace_v1.app.metadata[0].name
+  image      = each.value.image
+  tag        = each.value.tag
+  port       = each.value.port
+  replicas   = each.value.replicas
+  public     = each.value.public
+  env        = each.value.env
+  secret_env = each.value.secret_env
 
-  depends_on = [module.eks]
+  depends_on = [module.secrets]
 }
 
 module "secrets" {
   source = "./modules/secrets"
 
   secrets   = var.secrets
-  namespace = var.namespace
+  namespace = kubernetes_namespace_v1.app.metadata[0].name
   tags      = local.tags
-
-  # The namespace is created by the service Helm releases.
-  depends_on = [module.services]
 }
 
 module "rds" {

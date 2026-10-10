@@ -41,3 +41,12 @@ variable "env" {
   type        = map(string)
   default     = {}
 }
+
+variable "secret_env" {
+  description = "Environment variables read from Kubernetes secrets: NAME => { secret, key }"
+  type = map(object({
+    secret = string
+    key    = string
+  }))
+  default = {}
+}

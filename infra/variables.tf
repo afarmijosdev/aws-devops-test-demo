@@ -57,6 +57,11 @@ variable "services" {
     replicas = optional(number, 1)
     public   = optional(bool, false)     # true = internet-facing load balancer
     env      = optional(map(string), {}) # Container environment variables
+    # Container environment variables read from Kubernetes secrets: NAME => { secret, key }
+    secret_env = optional(map(object({
+      secret = string
+      key    = string
+    })), {})
   }))
 }
 
