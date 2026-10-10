@@ -32,3 +32,19 @@ module "eks" {
 
   tags = local.tags
 }
+
+module "services" {
+  source   = "./modules/k8s-service"
+  for_each = var.services
+
+  name      = each.key
+  namespace = var.namespace
+  image     = each.value.image
+  tag       = each.value.tag
+  port      = each.value.port
+  replicas  = each.value.replicas
+  public    = each.value.public
+  env       = each.value.env
+
+  depends_on = [module.eks]
+}

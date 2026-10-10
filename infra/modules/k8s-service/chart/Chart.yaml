@@ -1,0 +1,5 @@
+apiVersion: v2
+name: web-service
+description: Generic stateless HTTP service (Deployment + Service)
+type: application
+version: 0.1.0
