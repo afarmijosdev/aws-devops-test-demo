@@ -12,8 +12,7 @@ module "vpc" {
   cidr = var.vpc.cidr
   azs  = var.vpc.azs
 
-  public_subnets  = var.vpc.public_subnets
-  private_subnets = var.vpc.private_subnets
+  subnets = var.vpc.subnets
 
   tags = local.tags
 }
@@ -27,8 +26,12 @@ module "eks" {
   node_instance_types = var.eks.node_instance_types
   enable_irsa         = var.eks.enable_irsa
 
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnet_ids
+  vpc_id = module.vpc.vpc_id
+  # Every vpc.subnets entry whose type or name matches eks.subnets.
+  subnet_ids = [
+    for s in var.vpc.subnets : module.vpc.subnet_ids_by_cidr[s.cidr]
+    if s.type == var.eks.subnets || s.name == var.eks.subnets
+  ]
 
   tags = local.tags
 }

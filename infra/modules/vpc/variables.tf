@@ -13,14 +13,22 @@ variable "azs" {
   type        = list(string)
 }
 
-variable "public_subnets" {
-  description = "CIDR blocks for the public subnets, one per AZ"
-  type        = list(string)
-}
+variable "subnets" {
+  description = <<-EOT
+    Subnets in the VPC. Order matters: within each type, the Nth subnet goes in
+    azs[N % length(azs)]. Append new subnets at the end so existing ones keep
+    their position and are not recreated.
+  EOT
+  type = list(object({
+    cidr = string
+    type = string                 # "public", "private" or "database"
+    name = optional(string, null) # Name tag prefix; the AZ is appended
+  }))
 
-variable "private_subnets" {
-  description = "CIDR blocks for the private subnets, one per AZ"
-  type        = list(string)
+  validation {
+    condition     = alltrue([for s in var.subnets : contains(["public", "private", "database"], s.type)])
+    error_message = "Each subnet type must be \"public\", \"private\" or \"database\"."
+  }
 }
 
 variable "single_nat_gateway" {
