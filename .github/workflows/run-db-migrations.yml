@@ -7,6 +7,10 @@ on:
         description: db-migrations image tag (latest or a commit SHA from the build workflow)
         required: true
         default: latest
+      repair:
+        description: Run "flyway repair" first (clears failed migrations from the history after you fix the script)
+        type: boolean
+        default: false
 
 env:
   AWS_REGION: us-east-2
@@ -60,13 +64,14 @@ jobs:
         env:
           IMAGE: ${{ steps.ecr.outputs.registry }}/db-migrations:${{ inputs.image_tag }}
           DB_HOST: ${{ steps.rds.outputs.host }}
+          FLYWAY_REPAIR: ${{ inputs.repair }}
         run: |
           # Jobs are immutable: remove the previous run before creating a new one.
           kubectl delete job "$JOB_NAME" -n "$NAMESPACE" --ignore-not-found --wait=true
-          envsubst '${NAMESPACE} ${IMAGE} ${DB_HOST}' \
+          envsubst '${NAMESPACE} ${IMAGE} ${DB_HOST} ${FLYWAY_REPAIR}' \
             < hueca-bookstore/sqlcode/k8s/db-migrations-job.yaml \
             | kubectl apply -f -
-          echo "Running $IMAGE against $DB_HOST" >> "$GITHUB_STEP_SUMMARY"
+          echo "Running $IMAGE against $DB_HOST (repair: $FLYWAY_REPAIR)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Wait for the Job to finish
         run: |
