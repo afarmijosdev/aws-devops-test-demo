@@ -9,28 +9,23 @@ variable "environment" {
   type        = string
 }
 
-# VPC
-variable "vpc_name" {
-  description = "Name of the VPC"
-  type        = string
+variable "vpc" {
+  description = "VPC settings"
+  type = object({
+    name            = string       # Name of the VPC
+    cidr            = string       # CIDR block for the VPC
+    azs             = list(string) # Availability Zones for the subnets
+    public_subnets  = list(string) # Public subnet CIDRs, one per AZ
+    private_subnets = list(string) # Private subnet CIDRs, one per AZ
+  })
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
-  type        = string
-}
-
-variable "azs" {
-  description = "Availability Zones for the subnets"
-  type        = list(string)
-}
-
-variable "public_subnets" {
-  description = "CIDR blocks for the public subnets, one per AZ"
-  type        = list(string)
-}
-
-variable "private_subnets" {
-  description = "CIDR blocks for the private subnets, one per AZ"
-  type        = list(string)
+variable "eks" {
+  description = "EKS cluster settings"
+  type = object({
+    cluster_name        = string       # Name of the EKS cluster
+    kubernetes_version  = string       # Kubernetes version of the control plane
+    node_instance_types = list(string) # EC2 instance types for the managed node group
+    enable_irsa         = bool         # Create OIDC provider for IAM Roles for Service Accounts
+  })
 }
