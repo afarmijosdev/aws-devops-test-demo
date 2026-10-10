@@ -25,18 +25,20 @@ namespace = "bookstore"
 services = {
   # Backend: private, reachable only inside the cluster.
   be-inventory = {
-    image  = "753654068792.dkr.ecr.us-east-2.amazonaws.com/be-inventory"
-    tag    = "latest"
-    port   = 8000
-    public = false
+    image    = "753654068792.dkr.ecr.us-east-2.amazonaws.com/be-inventory"
+    tag      = "latest"
+    port     = 8000
+    replicas = 2
+    public   = false
   }
 
   # Frontend: public through an AWS load balancer.
   fe-inventory = {
-    image  = "753654068792.dkr.ecr.us-east-2.amazonaws.com/fe-inventory"
-    tag    = "latest"
-    port   = 8000
-    public = true
+    image    = "753654068792.dkr.ecr.us-east-2.amazonaws.com/fe-inventory"
+    tag      = "latest"
+    port     = 8000
+    replicas = 2
+    public   = true
     env = {
       BACKEND_API_URL = "http://be-inventory:8000"
     }
