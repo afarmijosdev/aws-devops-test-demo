@@ -90,3 +90,9 @@ variable "secrets" {
   }))
   default = {}
 }
+
+variable "ecr_repositories" {
+  description = "Names of the ECR repositories to create"
+  type        = list(string)
+  default     = []
+}

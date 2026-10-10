@@ -50,3 +50,7 @@ output "rds_endpoint" {
 output "rds_port" {
   value = module.rds.port
 }
+
+output "ecr_repository_urls" {
+  value = module.ecr.repository_urls
+}
