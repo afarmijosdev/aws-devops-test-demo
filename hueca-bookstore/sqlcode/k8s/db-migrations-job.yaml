@@ -1,0 +1,51 @@
+# Kubernetes Job that runs the Flyway migrations (see ../migrate.sh).
+# Rendered with envsubst by .github/workflows/run-db-migrations.yml:
+#   ${NAMESPACE}  namespace holding the db-sa / db-api secrets
+#   ${IMAGE}      db-migrations image, with tag
+#   ${DB_HOST}    RDS SQL Server endpoint
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrations
+  namespace: ${NAMESPACE}
+  labels:
+    app.kubernetes.io/name: db-migrations
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db-migrations
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: db-migrations
+          image: ${IMAGE}
+          imagePullPolicy: Always
+          env:
+            - name: DB_HOST
+              value: "${DB_HOST}"
+            - name: DB_PORT
+              value: "1433"
+            - name: DB_SA_USER
+              valueFrom:
+                secretKeyRef: { name: db-sa, key: username }
+            - name: DB_SA_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-sa, key: password }
+            - name: DB_API_USER
+              valueFrom:
+                secretKeyRef: { name: db-api, key: username }
+            - name: DB_API_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: db-api, key: password }
+          securityContext:
+            allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
