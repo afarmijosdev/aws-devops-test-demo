@@ -44,7 +44,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Configure kubectl for EKS
-        run: aws eks update-kubeconfig --region "$AWS_REGION" --name "$EKS_CLUSTER"
+        run: |
+          echo "AWS identity: $(aws sts get-caller-identity --query Arn --output text)"
+          aws eks update-kubeconfig --region "$AWS_REGION" --name "$EKS_CLUSTER"
 
       - name: Look up RDS endpoint
         id: rds

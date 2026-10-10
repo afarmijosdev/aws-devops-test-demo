@@ -1,6 +1,9 @@
 #!/bin/sh
-# Runs the Flyway migrations in two passes:
-#   1. bootstrap/ against master, as the db_sa login (creates the db_api login and the database)
+# Runs the Flyway migrations:
+#   0. sqlcmd creates the "flyway" database (owner db_sa) if missing. RDS doesn't
+#      allow creating objects in master, so Flyway's bootstrap history lives there.
+#   1. bootstrap/ against flyway, as the db_sa login (creates the db_api login,
+#      makes it an owner of flyway, and creates hueca_bookstore)
 #   2. schema/ against hueca_bookstore, as the db_api login (tables, etc.)
 #
 # Required env vars: DB_HOST, DB_SA_USER, DB_SA_PASSWORD, DB_API_USER, DB_API_PASSWORD
@@ -19,8 +22,14 @@ jdbc_url() {
   echo "jdbc:sqlserver://${DB_HOST}:${DB_PORT};databaseName=$1;${DB_JDBC_OPTIONS}"
 }
 
-echo "==> Bootstrap: master as ${DB_SA_USER}"
-FLYWAY_URL="$(jdbc_url master)" \
+echo "==> Create database flyway (if missing) as ${DB_SA_USER}"
+SQLCMDPASSWORD="$DB_SA_PASSWORD" sqlcmd \
+  -S "tcp:${DB_HOST},${DB_PORT}" -U "$DB_SA_USER" -d master \
+  -N true -C -b -l 30 \
+  -Q "IF DB_ID(N'flyway') IS NULL CREATE DATABASE flyway;"
+
+echo "==> Bootstrap: flyway as ${DB_SA_USER}"
+FLYWAY_URL="$(jdbc_url flyway)" \
 FLYWAY_USER="$DB_SA_USER" \
 FLYWAY_PASSWORD="$DB_SA_PASSWORD" \
 FLYWAY_LOCATIONS="filesystem:/flyway/sql/bootstrap" \

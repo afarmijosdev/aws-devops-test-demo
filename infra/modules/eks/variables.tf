@@ -50,3 +50,15 @@ variable "enable_irsa" {
   type        = bool
   default     = true
 }
+
+variable "deployer_arns" {
+  description = "IAM users/roles (e.g. CI) that may manage workloads in deployer_namespaces"
+  type        = list(string)
+  default     = []
+}
+
+variable "deployer_namespaces" {
+  description = "Namespaces the deployer_arns can edit"
+  type        = list(string)
+  default     = []
+}

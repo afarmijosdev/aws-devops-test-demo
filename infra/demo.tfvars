@@ -31,6 +31,12 @@ eks = {
 
   # Control plane and worker nodes go in the vpc.subnets with this type (or name).
   subnets = "private"
+
+  # IAM principals that can deploy into the app namespace (e.g. the GitHub Actions user).
+  # Find the ARN with the same keys: aws sts get-caller-identity --query Arn
+  deployer_arns = [
+     "arn:aws:iam::753654068792:user/github_api",
+  ]
 }
 
 # Application services (Helm releases on demo-eks)

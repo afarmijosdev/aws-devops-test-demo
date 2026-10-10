@@ -26,6 +26,9 @@ module "eks" {
   node_instance_types = var.eks.node_instance_types
   enable_irsa         = var.eks.enable_irsa
 
+  deployer_arns       = var.eks.deployer_arns
+  deployer_namespaces = [var.namespace]
+
   vpc_id = module.vpc.vpc_id
   # Every vpc.subnets entry whose type or name matches eks.subnets.
   subnet_ids = [

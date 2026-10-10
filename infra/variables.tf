@@ -31,6 +31,8 @@ variable "eks" {
     node_instance_types = list(string) # EC2 instance types for the managed node group
     enable_irsa         = bool         # Create OIDC provider for IAM Roles for Service Accounts
     subnets             = string       # Type or name of the vpc.subnets to use (e.g. "private")
+    # IAM ARNs (e.g. the GitHub Actions user) allowed to edit the app namespace.
+    deployer_arns = optional(list(string), [])
   })
 
   validation {
