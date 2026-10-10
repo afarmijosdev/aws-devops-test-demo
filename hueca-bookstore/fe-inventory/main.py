@@ -34,8 +34,33 @@ async def get_available_books() -> list[Book]:
     return [Book.model_validate(book) for book in response.json()]
 
 
+def render_page(title: str, body: str) -> HTMLResponse:
+    return HTMLResponse(
+        "<!doctype html>"
+        '<html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        f"<title>{escape(title)}</title>"
+        "<style>"
+        "body{font-family:system-ui,sans-serif;margin:2rem;color:#222}"
+        "table{border-collapse:collapse;width:100%;max-width:800px}"
+        "th,td{border:1px solid #ccc;padding:.65rem;text-align:left}"
+        "th{background:#f2f2f2}"
+        "</style></head><body>"
+        f"{body}</body></html>"
+    )
+
+
 @app.get("/", response_class=HTMLResponse)
-async def inventory_page() -> HTMLResponse:
+async def index_page() -> HTMLResponse:
+    return render_page(
+        "Bookstore",
+        "<h1>Welcome</h1>"
+        '<p><a href="/books">See available books</a></p>',
+    )
+
+
+@app.get("/books", response_class=HTMLResponse)
+async def books_page() -> HTMLResponse:
     books = await get_available_books()
     rows = "".join(
         "<tr>"
@@ -46,19 +71,11 @@ async def inventory_page() -> HTMLResponse:
         "</tr>"
         for book in books
     )
-    return HTMLResponse(
-        "<!doctype html>"
-        '<html lang="en"><head><meta charset="utf-8">'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        "<title>Bookstore Inventory</title>"
-        "<style>"
-        "body{font-family:system-ui,sans-serif;margin:2rem;color:#222}"
-        "table{border-collapse:collapse;width:100%;max-width:800px}"
-        "th,td{border:1px solid #ccc;padding:.65rem;text-align:left}"
-        "th{background:#f2f2f2}"
-        "</style></head><body>"
+    return render_page(
+        "Bookstore Inventory",
         "<h1>Bookstore Inventory</h1>"
         "<table><thead><tr><th>Book</th><th>Author</th>"
         "<th>Price</th><th>Stock</th></tr></thead>"
-        f"<tbody>{rows}</tbody></table></body></html>"
+        f"<tbody>{rows}</tbody></table>"
+        '<p><a href="/">Back to home</a></p>',
     )
