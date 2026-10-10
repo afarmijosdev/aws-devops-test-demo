@@ -8,8 +8,19 @@ vpc = {
   # Availability Zones
   azs = ["us-east-2a", "us-east-2b", "us-east-2c"]
 
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  # Within each type, subnets are spread across azs in order (1st -> 2a, 2nd -> 2b, ...).
+  # Add new subnets at the END of the list so existing ones are not recreated.
+  subnets = [
+    { cidr = "10.0.101.0/24", type = "public" },
+    { cidr = "10.0.102.0/24", type = "public" },
+    { cidr = "10.0.103.0/24", type = "public" },
+    { cidr = "10.0.1.0/24", type = "private" },
+    { cidr = "10.0.2.0/24", type = "private" },
+    { cidr = "10.0.3.0/24", type = "private" },
+    { cidr = "10.0.201.0/24", type = "database", name = "db_private" },
+    { cidr = "10.0.202.0/24", type = "database", name = "db_private" },
+    { cidr = "10.0.203.0/24", type = "database", name = "db_private" },
+  ]
 }
 
 eks = {
@@ -17,6 +28,9 @@ eks = {
   kubernetes_version  = "1.34"
   node_instance_types = ["m7i-flex.large"]
   enable_irsa         = false
+
+  # Control plane and worker nodes go in the vpc.subnets with this type (or name).
+  subnets = "private"
 }
 
 # Application services (Helm releases on demo-eks)

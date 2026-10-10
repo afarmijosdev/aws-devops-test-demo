@@ -12,11 +12,14 @@ variable "environment" {
 variable "vpc" {
   description = "VPC settings"
   type = object({
-    name            = string       # Name of the VPC
-    cidr            = string       # CIDR block for the VPC
-    azs             = list(string) # Availability Zones for the subnets
-    public_subnets  = list(string) # Public subnet CIDRs, one per AZ
-    private_subnets = list(string) # Private subnet CIDRs, one per AZ
+    name = string       # Name of the VPC
+    cidr = string       # CIDR block for the VPC
+    azs  = list(string) # Availability Zones for the subnets
+    subnets = list(object({
+      cidr = string
+      type = string                 # "public", "private" or "database"
+      name = optional(string, null) # Name tag prefix; the AZ is appended
+    }))
   })
 }
 
@@ -27,7 +30,15 @@ variable "eks" {
     kubernetes_version  = string       # Kubernetes version of the control plane
     node_instance_types = list(string) # EC2 instance types for the managed node group
     enable_irsa         = bool         # Create OIDC provider for IAM Roles for Service Accounts
+    subnets             = string       # Type or name of the vpc.subnets to use (e.g. "private")
   })
+
+  validation {
+    condition = length([
+      for s in var.vpc.subnets : s if s.type == var.eks.subnets || s.name == var.eks.subnets
+    ]) >= 2
+    error_message = "eks.subnets must match the type or name of at least two vpc.subnets (EKS needs two AZs)."
+  }
 }
 
 variable "namespace" {
