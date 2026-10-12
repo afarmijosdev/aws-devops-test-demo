@@ -1,22 +1,54 @@
 # aws-devops-test-demo
 
-hbe-
-hueca-bookstore
+## Objective
+Resolve the Epic User story using IaC.
 
-Tasks
+## User Story
 
-- Deploy Hellow World app
+As a collector of ecuadorian dishes recipes gathered from small restaurants (huecas) and books, I want to show my recipes list so that everyone in the internet can contact to me share with me after a trade (buy-sell,rent). 
+
+Acceptance Criteria
+
+Given a site recipe list link, 
+when clic on that link
+Then I would see the title, author, price, stock and available of  my books and recipe list; and the contact email. 
+
+
+## Tasks to solve the User Story
+
+### Phase 1
+
+- Deploy Hueca bookstore app
   - Deploy the infrastructure
-    - Deploy vpc (/16)
-        * public 
-        * private: 
-            ** DB
-            ** EKS
-            ** Others
+    - Deploy vpc
     - Deploy EKS with helm
-  - Deploy the webapp hello workd
-    * fe-inventory
-    * be-inentory
+    - Deploy the ECR
+  - Deploy the webapp
+    - Create two apis that say hello world    
+      * fe-inventory (front end)
+      * be-inventory (back end)
+    - Update the APIs to show a list of mock books
+    - Generate the Docker Images
+      - Create Github action to push the ECR
+  
+### Phase 2
+
+- Deploy Hueca bookstore app
+  - Deploy the infrastructure
+    - Deploy the RDS instance
+    - Deploy the flyway service (db-migration)
+      - Github action to create the db-migration EKS job and run SQL script.  
+  - Deploy the webapp
+    - Update the be-inventory to:
+      - Read the list from a database 
+    - Generate the SQL Scripts to:
+      - Provision the database tables
+      - Push the list of books and recipes inventory
+      - Github action to push flyway and scripts ECR
+    - Update the APIs to show a list of mock books
+    - Generate the Docker Images
+      - Create Github action to push the ECR
+
 
 ## Mock bookstore inventory APIs
 
