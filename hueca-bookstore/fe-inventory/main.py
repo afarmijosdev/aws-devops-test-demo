@@ -77,5 +77,5 @@ async def books_page() -> HTMLResponse:
         "<table><thead><tr><th>Book</th><th>Author</th>"
         "<th>Price</th><th>Stock</th></tr></thead>"
         f"<tbody>{rows}</tbody></table>"
-        '<p><a href="/">Back to home</a></p>',
+        '<br/><br/><p>To rent or set up a book, please contact our staff: info@hueca-bookstore.com.ec</p><br/><p><a href="/">Back to home</a></p>',
     )

@@ -49,6 +49,19 @@ Then I would see the title, author, price, stock and available of  my books and 
     - Generate the Docker Images
       - Create Github action to push the ECR
 
+# Steps to run it
+
+1. Setup the AWS Enviroment profiles
+2. Run the terraform code to deploy the infrastructure
+3. In Github, set:
+    - AWS Github user creds
+    - DB api user creds
+4, In Github run the build-push-ecr.yml build and push the APIs ECRs
+5. In Github, run the build-push-flyway-ecr.yml to build and push the Flyway/SQL scripts to ECRs
+6. In Github, run the run-db-migrations.yml to provision the DB objects.
+7. Rollout the fe-inventory and be-inventory to get the services up and running
+8. Using the LB DNS, copy/paste it in a browser such as http://<LB_DNS>/. It should show the bookstore list.
+
 
 ## Mock bookstore inventory APIs
 
